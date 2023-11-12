@@ -67,13 +67,14 @@ class ViewController: UIViewController {
     
     func updateWeatherData(with weatherData: Weather) {
         cityName.text = "\(weatherData.name)"
-        weatherDescription.text = ": \(weatherData.weather.first?.description ?? "")"
+        weatherDescription.text = "\(weatherData.weather.first?.description ?? "")"
         temperatureLabel.text = "\(Int(weatherData.main.temp - 273.15))°C" // Convert Kelvin to Celsius
         humidityLevelLabel.text = "\(Int(weatherData.main.humidity))%"
         windSpeedLabel.text = "\(weatherData.wind.speed) m/s"
         
         // Assuming OpenWeatherMap provides icon names like "01d", "02d", etc.
         if let iconName = weatherData.weather.first?.icon {
+            print("Icon Name: \(iconName)")
             weatherIcon.image = UIImage(named: iconName)
         }
         
