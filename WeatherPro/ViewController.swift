@@ -8,12 +8,25 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    
+    @IBOutlet weak var windSpeedLabel: UILabel!
+    
+    @IBOutlet weak var humidityLevelLabel: UILabel!
+    
+    @IBOutlet weak var temperatureLabel: UILabel!
+    
+    @IBOutlet weak var weatherDescription: UILabel!
+    
+    @IBOutlet weak var cityName: UILabel!
+    
+    @IBOutlet weak var weatherIcon: UIImageView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         getWeatherAPI()
     }
-
+    
     
     func getWeatherAPI(){
         
@@ -27,7 +40,7 @@ class ViewController: UIViewController {
             //print(data!)
             //if let data = data, let string = String(data: data, encoding: .utf8){
             //    print(string)
-           // }
+            // }
             
             if let data = data {
                 let jsonDecorder = JSONDecoder()
@@ -36,6 +49,9 @@ class ViewController: UIViewController {
                     let jsonData = try jsonDecorder.decode(Weather.self, from: data)
                     print(jsonData.name)
                     print(jsonData.coord)
+                    DispatchQueue.main.async {
+                        self.updateWeatherData(with: jsonData)
+                    }
                 } catch{
                     
                     print ("SOME ERROR")
@@ -49,10 +65,21 @@ class ViewController: UIViewController {
         
     }
     
-    
-    
-    
-    
-
+    func updateWeatherData(with weatherData: Weather) {
+        cityName.text = "\(weatherData.name)"
+        weatherDescription.text = ": \(weatherData.weather.first?.description ?? "")"
+        temperatureLabel.text = "\(Int(weatherData.main.temp - 273.15))°C" // Convert Kelvin to Celsius
+        humidityLevelLabel.text = "\(Int(weatherData.main.humidity))%"
+        windSpeedLabel.text = "\(weatherData.wind.speed) m/s"
+        
+        // Assuming OpenWeatherMap provides icon names like "01d", "02d", etc.
+        if let iconName = weatherData.weather.first?.icon {
+            weatherIcon.image = UIImage(named: iconName)
+        }
+        
+        
+        
+        
+        
+    }
 }
-
