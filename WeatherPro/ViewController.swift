@@ -54,7 +54,7 @@ class ViewController: UIViewController {
                     }
                 } catch{
                     
-                    print ("SOME ERROR")
+                    print("Error decoding JSON: \(error.localizedDescription)")
                 }
             }
             
