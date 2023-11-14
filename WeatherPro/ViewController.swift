@@ -65,6 +65,8 @@ class ViewController: UIViewController {
         
     }
     
+    
+    
     func updateWeatherData(with weatherData: Weather) {
         cityName.text = "\(weatherData.name)"
         weatherDescription.text = "\(weatherData.weather.first?.description ?? "")"
@@ -73,14 +75,35 @@ class ViewController: UIViewController {
         windSpeedLabel.text = "\(weatherData.wind.speed) m/s"
         
         // Assuming OpenWeatherMap provides icon names like "01d", "02d", etc.
-        if let iconName = weatherData.weather.first?.icon {
-            print("Icon Name: \(iconName)")
-            weatherIcon.image = UIImage(named: iconName)
+        //if let iconName = weatherData.weather.first?.icon {
+          //  print("Icon Name: \(iconName)")
+           // weatherIcon.image = UIImage(named: iconName)
+       // }
+        // Load image dynamically
+               if let iconName = weatherData.weather.first?.icon {
+                   loadImageFromURL(iconName)
+               }
+    }
+    
+    
+    func loadImageFromURL(_ iconName: String) {
+        let imageUrl = URL(string: "https://openweathermap.org/img/w/\(iconName).png")
+        
+        if let imageUrl = imageUrl {
+            let task = URLSession.shared.dataTask(with: imageUrl) { data, _, error in
+                if let error = error {
+                    print("Error downloading image: \(error.localizedDescription)")
+                    return
+                }
+                
+                if let data = data, let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self.weatherIcon.image = image
+                    }
+                }
+            }
+            task.resume()
         }
-        
-        
-        
-        
-        
     }
 }
+
