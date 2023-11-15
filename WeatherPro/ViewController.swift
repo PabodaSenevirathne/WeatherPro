@@ -27,7 +27,6 @@ class ViewController: UIViewController {
         getWeatherAPI()
     }
     
-    
     func getWeatherAPI(){
         
         guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=Waterloo,CA&appid=b822db056acf7f212fae8acc4a13a245") else {
@@ -37,6 +36,7 @@ class ViewController: UIViewController {
         
         let task = URLSession.shared.dataTask(with: url) {
             data, response, error in
+            
             //print(data!)
             //if let data = data, let string = String(data: data, encoding: .utf8){
             //    print(string)
@@ -61,32 +61,33 @@ class ViewController: UIViewController {
         }
         
         task.resume()
-        
-        
+    
     }
-    
-    
     
     func updateWeatherData(with weatherData: Weather) {
         cityName.text = "\(weatherData.name)"
-        weatherDescription.text = "\(weatherData.weather.first?.description ?? "")"
-        temperatureLabel.text = "\(Int(weatherData.main.temp - 273.15))°C" // Convert Kelvin to Celsius
+        //weatherDescription.text = "\(weatherData.weather.first?.description ?? "")"
+        if let description = weatherData.weather.first?.description {
+               // Capitalize the first letter of the weather description
+               let FormattedDescription = description.prefix(1).capitalized + description.dropFirst()
+            weatherDescription.text = "\(FormattedDescription)"
+           } else {
+               weatherDescription.text = "N/A"
+           }
+        
+        // Convert Kelvin to Celsius
+        temperatureLabel.text = "\(Int(weatherData.main.temp - 273.15))°"
         humidityLevelLabel.text = "\(Int(weatherData.main.humidity))%"
         windSpeedLabel.text = "\(weatherData.wind.speed) m/s"
         
-        // Assuming OpenWeatherMap provides icon names like "01d", "02d", etc.
-        //if let iconName = weatherData.weather.first?.icon {
-          //  print("Icon Name: \(iconName)")
-           // weatherIcon.image = UIImage(named: iconName)
-       // }
-        // Load image dynamically
+        // Load image
                if let iconName = weatherData.weather.first?.icon {
-                   loadImageFromURL(iconName)
+                   loadImageURL(iconName)
                }
     }
     
-    
-    func loadImageFromURL(_ iconName: String) {
+    // Load image from the URL
+    func loadImageURL(_ iconName: String) {
         let imageUrl = URL(string: "https://openweathermap.org/img/w/\(iconName).png")
         
         if let imageUrl = imageUrl {
