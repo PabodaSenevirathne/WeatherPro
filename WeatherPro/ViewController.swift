@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import CoreLocation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate{
     
     
     @IBOutlet weak var windSpeedLabel: UILabel!
@@ -22,18 +23,51 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var weatherIcon: UIImageView!
     
+    
+    // Create a CLLocationManager instance
+    let locationManager = CLLocationManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        getWeatherAPI()
+        
+        // Request permission to use location services
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+                
+        // Start updating location
+        locationManager.startUpdatingLocation()
+        // getWeatherAPI()
+        //getWeatherAPI(with: location.coordinate)
     }
     
-    func getWeatherAPI(){
-        
-        guard let url = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=Waterloo,CA&appid=b822db056acf7f212fae8acc4a13a245") else {
+    
+    // Called when the location manager receives new location data
+        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+            guard let location = locations.last else {
+                return
+            }
             
-            return
+            // Stop updating location after receiving it
+           // locationManager.stopUpdatingLocation()
+            
+            // Fetch weather data based on the obtained location
+            getWeatherAPI(for: location.coordinate)
         }
-        
+    
+    
+    // Called when there's an error obtaining location data
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
+    {
+        print("Error getting location: \(error.localizedDescription)")
+    }
+    
+    func getWeatherAPI(for coordinates: CLLocationCoordinate2D){
+                
+        let apiUrl = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(coordinates.latitude)&lon=\(coordinates.longitude)&appid=b822db056acf7f212fae8acc4a13a245")
+                guard let url = apiUrl else {
+                    print("Invalid URL")
+                    return
+                }
         let task = URLSession.shared.dataTask(with: url) {
             data, response, error in
             
