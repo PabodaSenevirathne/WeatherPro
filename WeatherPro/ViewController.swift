@@ -33,41 +33,43 @@ class ViewController: UIViewController, CLLocationManagerDelegate{
         // Request permission to use location services
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
-                
         // Start updating location
         locationManager.startUpdatingLocation()
         // getWeatherAPI()
-        //getWeatherAPI(with: location.coordinate)
     }
     
-    
-    // Called when the location manager receives new location data
-        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            guard let location = locations.last else {
-                return
-            }
+    // Get new location data
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else {
+          return
+    }
             
-            // Stop updating location after receiving it
-           // locationManager.stopUpdatingLocation()
+        // Stop updating location
+        // locationManager.stopUpdatingLocation()
             
-            // Fetch weather data based on the obtained location
-            getWeatherAPI(for: location.coordinate)
+        // get weather data based on the current location
+        getWeatherAPI(for: location.coordinate)
+        
         }
     
-    
-    // Called when there's an error obtaining location data
+    // get error message if there is an error obtaining location data
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
     {
+        
         print("Error getting location: \(error.localizedDescription)")
+        
     }
     
+    // get weather data
     func getWeatherAPI(for coordinates: CLLocationCoordinate2D){
                 
         let apiUrl = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(coordinates.latitude)&lon=\(coordinates.longitude)&appid=b822db056acf7f212fae8acc4a13a245")
-                guard let url = apiUrl else {
-                    print("Invalid URL")
-                    return
-                }
+        
+        guard let url = apiUrl else {
+            print("Invalid URL")
+                return
+        }
+        
         let task = URLSession.shared.dataTask(with: url) {
             data, response, error in
             
@@ -83,21 +85,23 @@ class ViewController: UIViewController, CLLocationManagerDelegate{
                     let jsonData = try jsonDecorder.decode(Weather.self, from: data)
                     print(jsonData.name)
                     print(jsonData.coord)
+                    
                     DispatchQueue.main.async {
                         self.updateWeatherData(with: jsonData)
                     }
+                    
                 } catch{
                     
                     print("Error decoding JSON: \(error.localizedDescription)")
                 }
             }
-            
         }
         
         task.resume()
     
     }
     
+    // update weather data in the UI
     func updateWeatherData(with weatherData: Weather) {
         cityName.text = "\(weatherData.name)"
         //weatherDescription.text = "\(weatherData.weather.first?.description ?? "")"
@@ -130,14 +134,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate{
                     print("Error downloading image: \(error.localizedDescription)")
                     return
                 }
-                
                 if let data = data, let image = UIImage(data: data) {
                     DispatchQueue.main.async {
                         self.weatherIcon.image = image
                     }
                 }
             }
+            
             task.resume()
+        
         }
     }
 }
